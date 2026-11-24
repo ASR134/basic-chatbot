@@ -1,6 +1,6 @@
 # Basic Chatbot
 
-A simple chatbot built using **LangGraph, LangChain, and Python**, with a Streamlit frontend.
+A simple chatbot built using **LangGraph, LangChain, and Python**, with a Streamlit frontend. The project aims to develop a **basic understanding of chatbot workflows**.
 
 ### Features
 - Conversational interaction with an LLM.
@@ -14,5 +14,6 @@ A simple chatbot built using **LangGraph, LangChain, and Python**, with a Stream
 - Streamlit
 
 ### Deployment
-The frontend is deployed on [Streamlit Community Cloud](https://streamlit.io/cloud).
+The frontend is deployed on Streamlit Community Cloud.
 
+**Live Demo:** [Chatbot](https://basic-chat-bot.streamlit.app/)
