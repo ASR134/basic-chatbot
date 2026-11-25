@@ -10,7 +10,7 @@ load_dotenv()
 
 
 model = ChatGoogleGenerativeAI(
-    model = "gemini-3.5-flash-lite"
+    model = "gemini-3.6-flash"
 )
 
 
@@ -47,3 +47,22 @@ checkpointer = MemorySaver()
 
 # compile graph
 chatbot = graph.compile(checkpointer=checkpointer)
+
+# stream = chatbot.stream( # returns a generator object
+#     {
+#         "messages" : [HumanMessage('hello how are you?')],
+#     }, # type: ignore
+#     {
+#         "configurable" : {
+#             "thread_id" : "1",
+#         }
+#     },
+#     stream_mode="messages", # this is for llm tokens. it streams llm tokens.
+# )
+
+# for chunk, metadata in stream:
+#     if chunk.content:
+#         print(chunk.content[0]["text"],end = " ",flush=True)
+
+# for update in stream:# use when stream_mode = "updates".
+#     print(update)
