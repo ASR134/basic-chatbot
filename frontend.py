@@ -1,29 +1,28 @@
-# on pressing enter when user types in chat_input the code code is executed from top again.
+# on any interaction with app by the user the python script reruns from top to bottom and then executing the block of code under it.
 import streamlit as st
 from main import chatbot
 from langchain_core.messages import HumanMessage
+import uuid
 
 
-CONFIG = {
-    "configurable" : {
-        "thread_id" : "1",
-    },
-}
+# ****************************************** UTILITY FUNCTIONS *******************************************************
+
+def generate_thread_id():
+    id = uuid.uuid4()
+    return id
+
+def reset_chat():
+    st.session_state["i"] = st.session_state["i"] + 1
+    thread_id = generate_thread_id()
+    add_thread(thread_id)
+    st.session_state["session_id"] = thread_id
+    st.session_state["message_history"] = []
 
 
-if "message_history" not in st.session_state: # st.session_state preserves data across streamlit reruns.
-    st.session_state["message_history"] = [] # list of dict : {"role" : ,"content" :}
+def add_thread(thread_id):
+    st.session_state["chat_threads"].append({st.session_state["i"] : thread_id})
 
-
-for message in st.session_state["message_history"]:
-    with st.chat_message(message["role"]):
-        st.text(message["content"])
-
-
-user_input = st.chat_input("Type here")
-
-
-def generate(): # generator - special type of iterator
+def generate(): # generator - special type of iterator. used here for streaming
     for chunk, metadata in chatbot.stream( # this is a generator object
     {
         "messages" : [HumanMessage(user_input)],
@@ -35,6 +34,76 @@ def generate(): # generator - special type of iterator
             yield chunk.content[0]["text"] # type: ignore
 
 
+def load_conversation(thread_id):
+
+    response = chatbot.get_state(config={"configurable" : {"thread_id" : thread_id}})
+
+    return response.values.get("messages",[])
+
+
+
+
+# ********************************* SESSION SETUP *******************************************************
+
+
+if "message_history" not in st.session_state: # st.session_state preserves data across streamlit reruns.
+    st.session_state["message_history"] = [] # list of dict : {"role" : ,"content" :}
+
+if "chat_threads" not in st.session_state:
+    st.session_state["chat_threads"] = []
+
+if "i" not in st.session_state:
+    st.session_state["i"] = 1
+
+if "session_id" not in st.session_state:
+    st.session_state["session_id"] = generate_thread_id()
+    add_thread(st.session_state["session_id"])
+
+
+# ****************************************** SIDEBAR ****************************************************
+
+st.sidebar.title("ChatBot")
+
+if st.sidebar.button("New Chat"):
+    reset_chat()
+
+st.sidebar.header("Past Conversations")
+
+for d in st.session_state["chat_threads"][::-1]:
+    thread_id = list(d.values())[0]
+    i = list(d.keys())[0]
+
+    if st.sidebar.button(f"Chat_History {i}"):
+        st.session_state["session_id"] = thread_id # to continue a particular conversation
+        messages = load_conversation(thread_id)
+
+        temp = []
+        for message in messages:
+            if isinstance(message,HumanMessage):
+                temp.append({"role" : "user","content" :message.content})
+            else:
+                role = "assistant"
+                temp.append({"role" : "assistant", "content" : message.content[0]["text"]}) 
+
+        st.session_state["message_history"] = temp
+
+
+# *********************************************************** MAIN UI ***************************************************
+
+for message in st.session_state["message_history"]:
+    with st.chat_message(message["role"]):
+        st.text(message["content"])
+
+
+user_input = st.chat_input("Type here")
+
+
+CONFIG = {
+    "configurable" : {
+        "thread_id" : st.session_state["session_id"],
+    },
+}
+
 if user_input:
 
     st.session_state["message_history"].append({"role" : "user", "content" : user_input})
@@ -43,7 +112,7 @@ if user_input:
 
 
     with st.chat_message("assistant"):
-        reponse = st.write_stream(generate()) # write_stream it accepts genrator obj but it will yield everything the generator obj gives. But we need only text so we need to pass a generator obj.
+        response = st.write_stream(generate()) # write_stream it accepts genrator obj but it will yield everything the generator obj gives. But we need only text so we need to pass a generator obj.
         # which used chatbot.stream() genrator obj to yield only the text.
 
-    st.session_state["message_history"].append({"role" : "assistant", "content" : reponse})
+    st.session_state["message_history"].append({"role" : "assistant", "content" : response})
