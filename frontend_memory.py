@@ -1,6 +1,6 @@
 # on any interaction with app by the user the python script reruns from top to bottom and then executing the block of code under it.
 import streamlit as st
-from main import chatbot
+from main_memory import chatbot
 from langchain_core.messages import HumanMessage
 import uuid
 

@@ -47,3 +47,17 @@ checkpointer = MemorySaver()
 
 # compile graph
 chatbot = graph.compile(checkpointer=checkpointer)
+
+# testing
+# response = chatbot.invoke(
+#     {
+#         "messages" : [HumanMessage("who am i")],
+#     },
+#     config={
+#         "configurable" : {
+#             "thread_id" : '1',
+#         },
+#     },
+# )
+
+# print(response)
