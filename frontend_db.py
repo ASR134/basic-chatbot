@@ -99,6 +99,10 @@ CONFIG = {
     "configurable" : {
         "thread_id" : st.session_state["session_id"],
     },
+    "metadata" : {
+        "thread_id" : st.session_state["session_id"],
+    },
+    "run_name" : "chat_turn",
 }
 
 if user_input:
