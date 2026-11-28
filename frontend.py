@@ -1,5 +1,10 @@
 # on any interaction with app by the user the python script reruns from top to bottom and then executing the block of code under it.
 import streamlit as st
+import os
+st.write("Tracing:", os.getenv("LANGSMITH_TRACING"))
+st.write("API key exists:", bool(os.getenv("LANGSMITH_API_KEY")))
+st.write("Endpoint:", os.getenv("LANGSMITH_ENDPOINT"))
+st.write("Project:", os.getenv("LANGSMITH_PROJECT"))
 from main_db import chatbot, retrieve_threads
 from langchain_core.messages import HumanMessage
 import uuid
